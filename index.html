@@ -144,7 +144,7 @@
         <button class="reset-btn" onclick="resetAll()">🔄 Reset All Data</button>
         
         <div style="text-align: center; margin-top: 20px; color: #718096; font-size: 0.9em;">
-            <p>💡 Tip: Press Enter to calculate or switch currencies to auto-convert prices</p>
+            <p>💡 Tip: Use math in Quantity (2*3, 10+5, 100/4) • Press Enter to calculate</p>
             <p style="margin-top: 5px;">
                 <a href="https://github.com/yourusername/price-comparison" target="_blank" style="color: #667eea; text-decoration: none;">
                     ⭐ Star this project on GitHub
@@ -154,6 +154,40 @@
     </div>
 
     <script>
+        // =========================
+        // Math Expression Evaluator
+        // =========================
+        function evaluateMathExpression(expression) {
+            try {
+                // แทนที่ x กับ * สำหรับการคูณ
+                expression = expression.replace(/x/gi, '*');
+                
+                // ตรวจสอบว่ามีเฉพาะตัวเลข, ช่องว่าง, และเครื่องหมายคณิตศาสตร์เท่านั้น
+                const allowedChars = /^[0-9+\-*/().\s]+$/;
+                if (!allowedChars.test(expression)) {
+                    throw new Error('Invalid characters in expression');
+                }
+                
+                // ป้องกัน harmful functions
+                const forbiddenPatterns = /(eval|function|return|var|let|const|=)/i;
+                if (forbiddenPatterns.test(expression)) {
+                    throw new Error('Forbidden expression');
+                }
+                
+                // คำนวณผลลัพธ์โดยใช้ Function constructor (ปลอดภัยกว่า eval)
+                const result = new Function('return (' + expression + ')')();
+                
+                // ตรวจสอบว่าผลลัพธ์เป็นตัวเลขที่ถูกต้อง
+                if (typeof result !== 'number' || !isFinite(result) || result < 0) {
+                    throw new Error('Invalid result');
+                }
+                
+                return result;
+            } catch (error) {
+                throw new Error('Invalid mathematical expression');
+            }
+        }
+
         // =========================
         // Currency configuration
         // =========================
@@ -296,9 +330,10 @@
 
                     <div class="input-row">
                         <div class="input-group">
-                            <label>Quantity</label>
+                            <label>Quantity <span style="color: #888; font-size: 0.8em;">(supports math: 2*3, 10+5)</span></label>
                             <div class="input-wrapper">
-                                <input type="number" id="quantity-${i}" placeholder="e.g. 500" step="any" min="0" oninput="clearBestDeal()">
+                                <input type="text" id="quantity-${i}" placeholder="e.g. 500 or 2*250" oninput="handleQuantityInput(${i})" onblur="validateQuantity(${i})">
+                                <div id="quantity-result-${i}" style="font-size: 0.8em; color: #667eea; margin-top: 2px; min-height: 16px;"></div>
                             </div>
                         </div>
 
@@ -319,6 +354,82 @@
             }
         }
 
+        // =========================
+        // Quantity Math Input Handlers
+        // =========================
+        function handleQuantityInput(itemIndex) {
+            const input = document.getElementById(`quantity-${itemIndex}`);
+            const resultDiv = document.getElementById(`quantity-result-${itemIndex}`);
+            const value = input.value.trim();
+            
+            if (!value) {
+                resultDiv.textContent = '';
+                clearBestDeal();
+                return;
+            }
+            
+            // ถ้าเป็นตัวเลขธรรมดา ไม่ต้องแสดงผลลัพธ์
+            if (!isNaN(value) && !value.includes('+') && !value.includes('-') && !value.includes('*') && !value.includes('/') && !value.includes('x')) {
+                resultDiv.textContent = '';
+                clearBestDeal();
+                return;
+            }
+            
+            try {
+                const result = evaluateMathExpression(value);
+                resultDiv.textContent = `= ${result}`;
+                resultDiv.style.color = '#667eea';
+                input.style.borderColor = '#667eea';
+            } catch (error) {
+                resultDiv.textContent = 'Invalid expression';
+                resultDiv.style.color = '#f56565';
+                input.style.borderColor = '#f56565';
+            }
+            
+            clearBestDeal();
+        }
+        
+        function validateQuantity(itemIndex) {
+            const input = document.getElementById(`quantity-${itemIndex}`);
+            const resultDiv = document.getElementById(`quantity-result-${itemIndex}`);
+            const value = input.value.trim();
+            
+            if (!value) {
+                input.style.borderColor = '#e2e8f0';
+                resultDiv.textContent = '';
+                return;
+            }
+            
+            try {
+                const result = evaluateMathExpression(value);
+                // แสดงผลลัพธ์สั้นๆ ถ้าเป็นสูตร
+                if (value.includes('+') || value.includes('-') || value.includes('*') || value.includes('/') || value.includes('x')) {
+                    resultDiv.textContent = `= ${result}`;
+                    resultDiv.style.color = '#667eea';
+                } else {
+                    resultDiv.textContent = '';
+                }
+                input.style.borderColor = '#e2e8f0';
+            } catch (error) {
+                resultDiv.textContent = 'Please enter a valid number or math expression';
+                resultDiv.style.color = '#f56565';
+                input.style.borderColor = '#f56565';
+            }
+        }
+        
+        function getQuantityValue(itemIndex) {
+            const input = document.getElementById(`quantity-${itemIndex}`);
+            const value = input.value.trim();
+            
+            if (!value) return NaN;
+            
+            try {
+                return evaluateMathExpression(value);
+            } catch (error) {
+                return NaN;
+            }
+        }
+
         function clearBestDeal() {
             document.querySelectorAll('.item-card').forEach(card => {
                 card.classList.remove('best-deal');
@@ -335,13 +446,12 @@
 
             // เก็บข้อมูลสินค้าที่มีการกรอกข้อมูลครบถ้วน
             for (let i = 1; i <= 5; i++) {
-                const quantityEl = document.getElementById(`quantity-${i}`);
                 const priceEl = document.getElementById(`price-${i}`);
                 const nameEl = document.getElementById(`name-${i}`);
                 
-                if (!quantityEl || !priceEl || !nameEl) continue;
+                if (!priceEl || !nameEl) continue;
                 
-                const quantity = parseFloat(quantityEl.value);
+                const quantity = getQuantityValue(i); // ใช้ฟังก์ชันใหม่ที่รองรับสูตรคณิตศาสตร์
                 const price = parseFloat(priceEl.value);
                 const name = nameEl.value.trim() || `Item ${i}`;
 
@@ -532,6 +642,23 @@
                 }
             }
         });
+        
+        // Add example suggestions for quantity field
+        document.addEventListener('focus', function(e) {
+            if (e.target.id && e.target.id.startsWith('quantity-')) {
+                const examples = ['2*250', '10+15', '100/4', '3*20+10', '(5+3)*12'];
+                const randomExample = examples[Math.floor(Math.random() * examples.length)];
+                if (!e.target.value) {
+                    e.target.placeholder = `Try: ${randomExample}`;
+                }
+            }
+        }, true);
+        
+        document.addEventListener('blur', function(e) {
+            if (e.target.id && e.target.id.startsWith('quantity-')) {
+                e.target.placeholder = 'e.g. 500 or 2*250';
+            }
+        }, true);
     </script>
 </body>
 </html>
