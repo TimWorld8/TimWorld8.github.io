@@ -3,715 +3,533 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Price Comparison - Find the Best Deal</title>
+    <title>Price Comparison Tool - Find the Best Deal</title>
+    <meta name="description" content="Compare prices across different quantities and currencies. Supports EUR, USD, THB, JPY, and CNY with real-time conversion.">
+    <meta name="keywords" content="price comparison, currency converter, shopping tool, best deal finder">
+    <meta name="author" content="Price Comparison Tool">
+    
+    <!-- Open Graph meta tags for social sharing -->
+    <meta property="og:title" content="Price Comparison Tool">
+    <meta property="og:description" content="Compare prices and find the best deals across different currencies">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourusername.github.io/price-comparison/">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            min-height: 100vh; padding: 10px; display: flex; justify-content: center; align-items: flex-start;
         }
-
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 20px;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            animation: fadeIn 0.5s ease;
-            margin-top: 20px;
-            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 20px; max-width: 500px; width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); backdrop-filter: blur(10px); animation: fadeIn 0.5s ease;
+            margin-top: 20px; margin-bottom: 20px;
         }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+        @keyframes fadeIn { from{opacity:0; transform: translateY(20px);} to{opacity:1; transform: translateY(0);} }
         h1 {
-            color: #5a67d8;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 1.8em;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
+            color:#5a67d8; text-align:center; margin-bottom:10px; font-size:1.8em;
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2;
         }
-
-        .subtitle {
-            text-align: center;
-            color: #718096;
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
-
-        .comparison-grid {
-            display: grid;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
+        .subtitle { text-align:center; color:#718096; margin-bottom:30px; font-size:1.1em; }
+        .comparison-grid { display:grid; gap:20px; margin-bottom:30px; }
         .item-card {
-            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
-            border-radius: 15px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
+            background:linear-gradient(135deg,#f6f8fb 0%,#e9ecef 100%); border-radius:15px; padding:15px; display:flex; flex-direction:column; gap:15px;
+            transition:all 0.3s ease; border:2px solid transparent; position:relative; overflow:hidden;
         }
-
-        .item-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        .item-card:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,0,0,0.1); }
+        .item-card.best-deal { background:linear-gradient(135deg,#84fab0 0%,#8fd3f4 100%); border:2px solid #48bb78; animation:pulse 2s infinite; }
+        @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(72,187,120,0.4);} 70%{box-shadow:0 0 0 10px rgba(72,187,120,0);} 100%{box-shadow:0 0 0 0 rgba(72,187,120,0);} }
+        .item-number { width:35px; height:35px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-radius:50%;
+            display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1em; align-self:center;
         }
-
-        .item-card.best-deal {
-            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-            border: 2px solid #48bb78;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(72, 187, 120, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
-            }
-        }
-
-        .item-number {
-            width: 35px;
-            height: 35px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.1em;
-            align-self: center;
-        }
-        
-        .item-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .item-header h3 {
-            color: #4a5568;
-            font-size: 1.1em;
-            margin: 0;
-            flex: 1;
-        }
-        
+        .item-header { display:flex; align-items:center; gap:15px; margin-bottom:10px; }
+        .item-header h3 { color:#4a5568; font-size:1.1em; margin:0; flex:1; }
         .item-name-input {
-            border: none;
-            background: transparent;
-            color: #4a5568;
-            font-size: 1.1em;
-            font-weight: 600;
-            flex: 1;
-            padding: 5px 8px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            border:none; background:transparent; color:#4a5568; font-size:1.1em; font-weight:600; flex:1; padding:5px 8px; border-radius:8px; transition:all 0.3s ease; font-family:inherit;
         }
-        
-        .item-name-input:focus {
-            outline: none;
-            background: rgba(102, 126, 234, 0.1);
-            border: 2px solid #667eea;
-        }
-        
-        .item-name-input:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-        
-        .item-name-input::placeholder {
-            color: #a0aec0;
-            opacity: 0.8;
-        }
-        
-        .currency-selector {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .currency-selector label {
-            display: block;
-            color: #4a5568;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 1em;
-        }
-        
+        .item-name-input:focus { outline:none; background:rgba(102,126,234,0.1); border:2px solid #667eea; }
+        .item-name-input:hover { background:rgba(0,0,0,0.05); }
+        .item-name-input::placeholder { color:#a0aec0; opacity:0.8; }
+        .currency-selector { margin-bottom: 10px; text-align:center; }
+        .currency-selector label { display:block; color:#4a5568; font-weight:600; margin-bottom:8px; font-size:1em; }
         .currency-select {
-            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px 20px;
-            font-size: 1em;
-            font-weight: 500;
-            color: #4a5568;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 150px;
+            background:linear-gradient(135deg,#f6f8fb 0%,#e9ecef 100%); border:2px solid #e2e8f0; border-radius:12px; padding:12px 20px;
+            font-size:1em; font-weight:500; color:#4a5568; cursor:pointer; transition:all 0.3s ease; min-width:150px;
         }
-        
-        .currency-select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .currency-select:hover {
-            border-color: #cbd5e0;
-            background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
-        }
-        
-        .input-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .input-group {
-            position: relative;
-        }
-
-        .input-group label {
-            display: block;
-            color: #4a5568;
-            font-weight: 500;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
+        .currency-select:focus { outline:none; border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.1); }
+        .currency-select:hover { border-color:#cbd5e0; background:linear-gradient(135deg,#edf2f7 0%,#e2e8f0 100%); }
+        .input-row { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+        .input-group { position:relative; }
+        .input-group label { display:block; color:#4a5568; font-weight:500; margin-bottom:5px; font-size:0.9em; }
+        .input-wrapper { position:relative; }
         .input-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            background: white;
-            -webkit-appearance: none;
-            appearance: none;
+            width:100%; padding:12px 15px; border:2px solid #e2e8f0; border-radius:10px; font-size:1em; transition:all 0.3s ease; background:white; -webkit-appearance:none; appearance:none;
         }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .unit-price {
-            text-align: center;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            margin-top: 10px;
-            border: 2px solid #e2e8f0;
-        }
-
-        .unit-price-label {
-            color: #718096;
-            font-size: 0.8em;
-            margin-bottom: 5px;
-        }
-
-        .unit-price-value {
-            color: #2d3748;
-            font-size: 1.3em;
-            font-weight: bold;
-        }
-
-        .best-deal .unit-price-value {
-            color: #22543d;
-        }
-
+        .input-group input:focus { outline:none; border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.1); }
+        .unit-price { text-align:center; padding:15px; background:white; border-radius:10px; margin-top:10px; border:2px solid #e2e8f0; }
+        .unit-price-label { color:#718096; font-size:0.8em; margin-bottom:5px; }
+        .unit-price-value { color:#2d3748; font-size:1.3em; font-weight:bold; }
+        .best-deal .unit-price-value { color:#22543d; }
         .badge {
-            position: absolute;
-            top: -10px;
-            right: 20px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
-            animation: bounce 2s infinite;
+            position:absolute; top:-10px; right:20px; background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%); color:white; padding:5px 15px; border-radius:20px; font-size:0.9em; font-weight:bold; box-shadow:0 5px 15px rgba(245,87,108,0.4); animation:bounce 2s infinite;
         }
-
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-5px);
-            }
-        }
-
+        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
         .calculate-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            display: block;
-            margin: 30px auto;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border:none; padding:15px 40px; border-radius:50px; font-size:1.1em; font-weight:bold;
+            cursor:pointer; display:block; margin:30px auto 10px; transition:all 0.3s ease; box-shadow:0 10px 30px rgba(102,126,234,0.3);
         }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
-        }
-
-        .calculate-btn:active {
-            transform: translateY(0);
-        }
-
+        .calculate-btn:hover { transform:translateY(-2px); box-shadow:0 15px 40px rgba(102,126,234,0.4); }
+        .calculate-btn:active { transform:translateY(0); }
         .reset-btn {
-            background: #e2e8f0;
-            color: #4a5568;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 50px;
-            font-size: 1em;
-            cursor: pointer;
-            display: block;
-            margin: 10px auto;
-            transition: all 0.3s ease;
+            background:#e2e8f0; color:#4a5568; border:none; padding:10px 30px; border-radius:50px; font-size:1em; cursor:pointer; display:block; margin:10px auto; transition:all 0.3s ease;
         }
-
-        .reset-btn:hover {
-            background: #cbd5e0;
-        }
-
-        /* Mobile Portrait Optimization */
+        .reset-btn:hover { background:#cbd5e0; }
         @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-            
-            .container {
-                padding: 15px;
-                border-radius: 15px;
-                margin-top: 10px;
-                margin-bottom: 10px;
-                max-width: 100%;
-            }
-            
-            h1 {
-                font-size: 1.6em;
-                margin-bottom: 8px;
-            }
-            
-            .subtitle {
-                font-size: 0.95em;
-                margin-bottom: 20px;
-            }
-            
-            .comparison-grid {
-                gap: 15px;
-                margin-bottom: 20px;
-            }
-            
-            .item-card {
-                padding: 12px;
-                gap: 12px;
-            }
-            
-            .item-number {
-                width: 30px;
-                height: 30px;
-                font-size: 1em;
-            }
-            
-            .item-header h3 {
-                font-size: 1em;
-            }
-            
-            .item-name-input {
-                font-size: 1em;
-                padding: 4px 6px;
-            }
-            
-            .input-row {
-                gap: 10px;
-            }
-            
-            .input-group label {
-                font-size: 0.85em;
-                margin-bottom: 4px;
-            }
-            
-            .input-group input {
-                padding: 10px 12px;
-                font-size: 16px; /* Prevent zoom on iOS */
-            }
-            
-            .unit-price {
-                padding: 12px;
-                margin-top: 8px;
-            }
-            
-            .unit-price-label {
-                font-size: 0.75em;
-            }
-            
-            .unit-price-value {
-                font-size: 1.2em;
-            }
-            
-            .calculate-btn {
-                padding: 12px 30px;
-                font-size: 1em;
-                margin: 20px auto;
-            }
-            
-            .reset-btn {
-                padding: 8px 25px;
-                font-size: 0.9em;
-            }
-            
-            .currency-select {
-                min-width: 120px;
-                padding: 10px 15px;
-                font-size: 0.9em;
-            }
+            body { padding:5px; }
+            .container { padding:15px; border-radius:15px; margin:10px 0; max-width:100%; }
+            h1 { font-size:1.6em; margin-bottom:8px; }
+            .subtitle { font-size:0.95em; margin-bottom:20px; }
+            .comparison-grid { gap:15px; margin-bottom:20px; }
+            .item-card { padding:12px; gap:12px; }
+            .item-number { width:30px; height:30px; font-size:1em; }
+            .item-header h3 { font-size:1em; }
+            .item-name-input { font-size:1em; padding:4px 6px; }
+            .input-row { gap:10px; }
+            .input-group label { font-size:0.85em; margin-bottom:4px; }
+            .input-group input { padding:10px 12px; font-size:16px; }
+            .unit-price { padding:12px; margin-top:8px; }
+            .unit-price-label { font-size:0.75em; }
+            .unit-price-value { font-size:1.2em; }
+            .calculate-btn { padding:12px 30px; font-size:1em; margin:20px auto; }
+            .reset-btn { padding:8px 25px; font-size:0.9em; }
+            .currency-select { min-width:120px; padding:10px 15px; font-size:0.9em; }
         }
-        
-        /* Small phones */
-        @media (max-width: 360px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .input-row {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-            
-            h1 {
-                font-size: 1.4em;
-            }
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #718096;
-            padding: 20px;
-            font-style: italic;
-        }
-
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            opacity: 1;
-            height: 40px;
-        }
-        
-        /* iPhone Safe Area */
+        @media (max-width: 360px) { .container{padding:10px;} .input-row{grid-template-columns:1fr; gap:8px;} h1{font-size:1.4em;} }
+        .empty-state { text-align:center; color:#718096; padding:20px; font-style:italic; }
+        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { opacity:1; height:40px; }
         @supports (padding: max(0px)) {
-            body {
-                padding-left: max(10px, env(safe-area-inset-left));
-                padding-right: max(10px, env(safe-area-inset-right));
-                padding-bottom: max(10px, env(safe-area-inset-bottom));
-            }
+            body { padding-left:max(10px, env(safe-area-inset-left)); padding-right:max(10px, env(safe-area-inset-right)); padding-bottom:max(10px, env(safe-area-inset-bottom)); }
         }
-        
-        /* Touch Improvements สำหรับ iPhone */
-        .calculate-btn, .reset-btn {
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-        
-        input {
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        
-        /* Prevent zoom on input focus สำหรับ iPhone */
-        input[type="number"] {
-            font-size: max(16px, 1em);
-        }
+        .calculate-btn, .reset-btn { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+        input { -webkit-appearance:none; appearance:none; }
+        input[type="number"] { font-size:max(16px, 1em); }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🛒 Price Comparison</h1>
-        <p class="subtitle">Enter quantity and price to find the best value deal</p>
-        
+        <div class="container">
+        <h1>🛒 Price Comparison Tool</h1>
+        <p class="subtitle">Compare prices across different quantities and currencies to find the best deal</p>
+
         <div class="currency-selector">
             <label for="currencySelect">Currency:</label>
             <select id="currencySelect" class="currency-select" onchange="changeCurrency()">
                 <option value="EUR">🇪🇺 Euro (€)</option>
                 <option value="USD">🇺🇸 US Dollar ($)</option>
                 <option value="THB">🇹🇭 Thai Baht (฿)</option>
+                <option value="JPY">🇯🇵 Japanese Yen (¥)</option>
+                <option value="CNY">🇨🇳 Chinese Yuan (¥)</option>
             </select>
+            <!-- แสดงวันที่ของเรตที่ใช้อยู่ -->
+            <div id="fxMeta" class="subtitle" style="margin-top:8px;"></div>
         </div>
-        
+
         <div class="comparison-grid" id="comparisonGrid">
             <!-- Items will be generated here -->
         </div>
+
+        <button class="calculate-btn" onclick="calculateBestDeal()">🔍 Calculate Best Deal</button>
+        <button class="reset-btn" onclick="resetAll()">🔄 Reset All Data</button>
         
-        <button class="calculate-btn" onclick="calculateBestDeal()">
-            🔍 Calculate Best Deal
-        </button>
-        <button class="reset-btn" onclick="resetAll()">
-            🔄 Reset All Data
-        </button>
+        <div style="text-align: center; margin-top: 20px; color: #718096; font-size: 0.9em;">
+            <p>💡 Tip: Press Enter to calculate or switch currencies to auto-convert prices</p>
+            <p style="margin-top: 5px;">
+                <a href="https://github.com/yourusername/price-comparison" target="_blank" style="color: #667eea; text-decoration: none;">
+                    ⭐ Star this project on GitHub
+                </a>
+            </p>
+        </div>
     </div>
 
     <script>
+        // =========================
         // Currency configuration
+        // =========================
         const currencies = {
             'EUR': { symbol: '€', name: 'Euro' },
             'USD': { symbol: '$', name: 'US Dollar' },
-            'THB': { symbol: '฿', name: 'Thai Baht' }
+            'THB': { symbol: '฿', name: 'Thai Baht' },
+            'JPY': { symbol: '¥', name: 'Japanese Yen' },
+            'CNY': { symbol: '¥', name: 'Chinese Yuan' }
         };
-        
         let currentCurrency = 'EUR';
-        
-        // Get current currency info
-        function getCurrentCurrency() {
-            return currencies[currentCurrency];
-        }
-        
-        // Change currency function
-        function changeCurrency() {
-            const select = document.getElementById('currencySelect');
-            currentCurrency = select.value;
-            updatePriceLabels();
-            clearBestDeal();
-        }
-        
-        // Update price labels based on current currency
+
+        function getCurrentCurrency() { return currencies[currentCurrency]; }
+
         function updatePriceLabels() {
             const currency = getCurrentCurrency();
             document.querySelectorAll('.price-label').forEach(label => {
                 label.textContent = `Price (${currency.name})`;
             });
         }
-        
-        // Initialize the app
+
+        // =========================
+        // FX utils (Frankfurter / ECB)
+        // =========================
+        // ใช้อัตราแลกเปลี่ยนแบบคงที่สำหรับการทำงานออฟไลน์
+        const FIXED_RATES = {
+            // EUR pairs
+            'EUR-USD': 1.10,
+            'EUR-THB': 38.50,
+            'EUR-JPY': 163.00,
+            'EUR-CNY': 7.90,
+            
+            // USD pairs
+            'USD-EUR': 0.91,
+            'USD-THB': 35.00,
+            'USD-JPY': 148.00,
+            'USD-CNY': 7.20,
+            
+            // THB pairs
+            'THB-EUR': 0.026,
+            'THB-USD': 0.029,
+            'THB-JPY': 4.23,
+            'THB-CNY': 0.206,
+            
+            // JPY pairs
+            'JPY-EUR': 0.0061,
+            'JPY-USD': 0.0068,
+            'JPY-THB': 0.236,
+            'JPY-CNY': 0.049,
+            
+            // CNY pairs
+            'CNY-EUR': 0.127,
+            'CNY-USD': 0.139,
+            'CNY-THB': 4.86,
+            'CNY-JPY': 20.56
+        };
+
+        const FX_CACHE_KEY = 'fx-cache-v1';
+
+        function setFxMeta(text) {
+            const el = document.getElementById('fxMeta');
+            if (el) el.textContent = text || '';
+        }
+
+        function readFxCache(from, to) {
+            try {
+                const raw = localStorage.getItem(FX_CACHE_KEY);
+                if (!raw) return null;
+                const obj = JSON.parse(raw);
+                return obj[`${from}->${to}`] || null;
+            } catch { return null; }
+        }
+
+        function writeFxCache(from, to, rate, date) {
+            try {
+                const raw = localStorage.getItem(FX_CACHE_KEY);
+                const obj = raw ? JSON.parse(raw) : {};
+                obj[`${from}->${to}`] = { rate, date, ts: Date.now() };
+                localStorage.setItem(FX_CACHE_KEY, JSON.stringify(obj));
+            } catch {}
+        }
+
+        // ดึงเรตคู่สกุล - ใช้อัตราคงที่ก่อน แล้วลอง API ถ้าไม่ได้
+        async function getPairQuote(from, to) {
+            if (from === to) return { rate: 1, date: new Date().toISOString().split('T')[0] };
+
+            // ใช้ cache ถ้ามี
+            const cached = readFxCache(from, to);
+            if (cached?.rate) return { rate: cached.rate, date: cached.date };
+
+            // ลองใช้อัตราคงที่ก่อน
+            const fixedRateKey = `${from}-${to}`;
+            if (FIXED_RATES[fixedRateKey]) {
+                const rate = FIXED_RATES[fixedRateKey];
+                const today = new Date().toISOString().split('T')[0];
+                writeFxCache(from, to, rate, today);
+                return { rate, date: today };
+            }
+
+            // ลอง API เป็นทางเลือกสุดท้าย
+            try {
+                const url = `https://api.frankfurter.app/latest?from=${from}&to=${to}`;
+                const resp = await fetch(url, { cache: 'no-store' });
+                if (!resp.ok) throw new Error(`API Error: ${resp.status}`);
+                const data = await resp.json();
+                const rate = data?.rates?.[to];
+                const date = data?.date;
+                if (typeof rate !== 'number') throw new Error('Invalid rate data');
+
+                writeFxCache(from, to, rate, date);
+                if (rate !== 0) writeFxCache(to, from, 1 / rate, date);
+
+                return { rate, date };
+            } catch (apiError) {
+                console.warn('API failed, using estimated rate:', apiError.message);
+                // ใช้อัตราประมาณการถ้า API ไม่ทำงาน
+                const estimatedRate = 1; // fallback rate
+                const today = new Date().toISOString().split('T')[0];
+                return { rate: estimatedRate, date: today };
+            }
+        }
+
+        // =========================
+        // App init & UI
+        // =========================
         function initApp() {
             const grid = document.getElementById('comparisonGrid');
             grid.innerHTML = '';
-            
+
             for (let i = 1; i <= 5; i++) {
                 const itemCard = document.createElement('div');
                 itemCard.className = 'item-card';
                 itemCard.id = `item-${i}`;
-                
+
                 itemCard.innerHTML = `
                     <div class="item-header">
                         <div class="item-number">${i}</div>
-                        <input type="text" 
-                               class="item-name-input" 
-                               id="name-${i}"
-                               value="Item ${i}" 
-                               placeholder="Item name"
-                               maxlength="50">
+                        <input type="text" class="item-name-input" id="name-${i}" value="Item ${i}" placeholder="Item name" maxlength="50">
                     </div>
-                    
+
                     <div class="input-row">
                         <div class="input-group">
                             <label>Quantity</label>
                             <div class="input-wrapper">
-                                <input type="number" 
-                                       id="quantity-${i}" 
-                                       placeholder="e.g. 500" 
-                                       step="any"
-                                       min="0"
-                                       onkeyup="clearBestDeal()">
+                                <input type="number" id="quantity-${i}" placeholder="e.g. 500" step="any" min="0" oninput="clearBestDeal()">
                             </div>
                         </div>
-                        
+
                         <div class="input-group">
                             <label class="price-label">Price (Euro)</label>
                             <div class="input-wrapper">
-                                <input type="number" 
-                                       id="price-${i}" 
-                                       placeholder="e.g. 99" 
-                                       step="any"
-                                       min="0"
-                                       onkeyup="clearBestDeal()">
+                                <input type="number" id="price-${i}" placeholder="e.g. 99" step="any" min="0" oninput="clearBestDeal()">
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="unit-price" id="unit-price-${i}" style="display: none;">
                         <div class="unit-price-label">Price per unit</div>
                         <div class="unit-price-value">-</div>
                     </div>
                 `;
-                
                 grid.appendChild(itemCard);
             }
         }
 
         function clearBestDeal() {
-            // Remove best deal styling when user types
             document.querySelectorAll('.item-card').forEach(card => {
                 card.classList.remove('best-deal');
                 const badge = card.querySelector('.badge');
                 if (badge) badge.remove();
             });
-            
-            // Hide unit prices
-            document.querySelectorAll('.unit-price').forEach(el => {
-                el.style.display = 'none';
-            });
+            document.querySelectorAll('.unit-price').forEach(el => { el.style.display = 'none'; });
+            // ไม่ล้างค่า fxMeta — ให้คงวันเรตไว้เพื่ออ้างอิง
         }
 
         function calculateBestDeal() {
             const items = [];
             let hasValidInput = false;
-            
-            // Collect all valid inputs
+
+            // เก็บข้อมูลสินค้าที่มีการกรอกข้อมูลครบถ้วน
             for (let i = 1; i <= 5; i++) {
-                const quantity = parseFloat(document.getElementById(`quantity-${i}`).value);
-                const price = parseFloat(document.getElementById(`price-${i}`).value);
+                const quantityEl = document.getElementById(`quantity-${i}`);
+                const priceEl = document.getElementById(`price-${i}`);
+                const nameEl = document.getElementById(`name-${i}`);
                 
-                if (quantity > 0 && price >= 0) {
+                if (!quantityEl || !priceEl || !nameEl) continue;
+                
+                const quantity = parseFloat(quantityEl.value);
+                const price = parseFloat(priceEl.value);
+                const name = nameEl.value.trim() || `Item ${i}`;
+
+                if (quantity > 0 && price >= 0 && !isNaN(quantity) && !isNaN(price)) {
                     hasValidInput = true;
                     const unitPrice = price / quantity;
-                    items.push({
-                        index: i,
-                        quantity: quantity,
-                        price: price,
-                        unitPrice: unitPrice
+                    items.push({ 
+                        index: i, 
+                        name: name,
+                        quantity, 
+                        price, 
+                        unitPrice 
                     });
                 }
             }
-            
+
             if (!hasValidInput) {
-                alert('Please enter data for at least 1 item (quantity and price)');
+                alert('กรุณากรอกข้อมูลอย่างน้อย 1 รายการ (จำนวนและราคา)');
                 return;
             }
-            
-            // Clear previous styling
+
+            // ล้างการแสดงผลเดิม
             document.querySelectorAll('.item-card').forEach(card => {
                 card.classList.remove('best-deal');
                 const badge = card.querySelector('.badge');
                 if (badge) badge.remove();
             });
-            
-            // Find best deal (lowest unit price)
+
+            // หาข้อเสนอที่ดีที่สุด (ราคาต่อหน่วยต่ำสุด)
             let bestDeal = items[0];
-            items.forEach(item => {
-                if (item.unitPrice < bestDeal.unitPrice) {
-                    bestDeal = item;
-                }
+            items.forEach(item => { 
+                if (item.unitPrice < bestDeal.unitPrice) bestDeal = item; 
             });
-            
-            // Update UI for all valid items
+
+            // แสดงผลราคาต่อหน่วยและไฮไลท์ข้อเสนอที่ดีที่สุด
             items.forEach(item => {
                 const card = document.getElementById(`item-${item.index}`);
                 const unitPriceEl = document.getElementById(`unit-price-${item.index}`);
                 
-                // Show unit price
+                if (!card || !unitPriceEl) return;
+                
                 unitPriceEl.style.display = 'block';
                 const currency = getCurrentCurrency();
-                unitPriceEl.querySelector('.unit-price-value').textContent = 
-                    `${currency.symbol}${item.unitPrice.toFixed(2)}`;
                 
-                // Highlight best deal
+                // ปรับจำนวนทศนิยมตามสกุลเงิน
+                let decimals = 2;
+                if (currentCurrency === 'JPY') decimals = 0; // เยนไม่มีทศนิยม
+                if (currentCurrency === 'CNY') decimals = 2; // หยวนมี 2 ตำแหน่ง
+                
+                unitPriceEl.querySelector('.unit-price-value').textContent =
+                    `${currency.symbol}${item.unitPrice.toFixed(decimals)}`;
+
                 if (item.index === bestDeal.index) {
                     card.classList.add('best-deal');
-                    
-                    // Add badge
                     const badge = document.createElement('div');
                     badge.className = 'badge';
                     badge.textContent = 'Best Deal! 🎉';
                     card.appendChild(badge);
                 }
             });
-            
-            // Smooth scroll to best deal
-            document.getElementById(`item-${bestDeal.index}`).scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
+
+            // เลื่อนไปยังข้อเสนอที่ดีที่สุด
+            const bestCard = document.getElementById(`item-${bestDeal.index}`);
+            if (bestCard) {
+                bestCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // แสดงสรุปผลใน console
+            console.log('Price Comparison Results:');
+            items.forEach(item => {
+                const currency = getCurrentCurrency();
+                let decimals = 2;
+                if (currentCurrency === 'JPY') decimals = 0;
+                if (currentCurrency === 'CNY') decimals = 2;
+                console.log(`${item.name}: ${currency.symbol}${item.unitPrice.toFixed(decimals)} per unit ${item.index === bestDeal.index ? '(BEST)' : ''}`);
             });
         }
 
         function resetAll() {
             if (confirm('Do you want to reset all data? (Item names will be preserved)')) {
-                // Save current names before reset
                 const savedNames = {};
                 for (let i = 1; i <= 5; i++) {
                     const nameInput = document.getElementById(`name-${i}`);
-                    if (nameInput) {
-                        savedNames[i] = nameInput.value;
-                    }
+                    if (nameInput) savedNames[i] = nameInput.value;
                 }
-                
-                // Reset the app
                 initApp();
-                
-                // Restore saved names
                 for (let i = 1; i <= 5; i++) {
                     if (savedNames[i]) {
                         const nameInput = document.getElementById(`name-${i}`);
-                        if (nameInput) {
-                            nameInput.value = savedNames[i];
-                        }
+                        if (nameInput) nameInput.value = savedNames[i];
                     }
                 }
+                clearBestDeal();
+                updatePriceLabels();
             }
-            }
+        }
+
+        // =========================
+        // Currency switching (convert values in-place)
+        // =========================
+        async function changeCurrency() {
+            const select = document.getElementById('currencySelect');
+            const newCurrency = select.value;
+            const prevCurrency = currentCurrency;
+            if (newCurrency === prevCurrency) return;
+
+            // UI: disable select ระหว่างโหลด
+            select.disabled = true;
             
-            // Initialize on load
+            // แสดงข้อความกำลังโหลด
+            setFxMeta('Loading exchange rates...');
+
+            try {
+                const { rate, date } = await getPairQuote(prevCurrency, newCurrency);
+
+                // แปลงราคาทุกช่องจาก prevCurrency -> newCurrency
+                const priceInputs = document.querySelectorAll('[id^="price-"]');
+                let convertedCount = 0;
+                
+                priceInputs.forEach(input => {
+                    const v = parseFloat(input.value);
+                    if (!isNaN(v) && v >= 0) {
+                        const nv = v * rate;
+                        input.value = (Math.round(nv * 100) / 100).toString();
+                        convertedCount++;
+                    }
+                });
+
+                // อัปเดตสถานะและ UI
+                currentCurrency = newCurrency;
+                updatePriceLabels();
+                clearBestDeal();
+
+                // แสดงข้อมูลการแปลงสกุลเงิน
+                const currencyName = currencies[newCurrency].name;
+                if (date) {
+                    setFxMeta(`Converted to ${currencyName} | Rate: ${rate.toFixed(4)} | Date: ${date}`);
+                } else {
+                    setFxMeta(`Converted to ${currencyName} | Rate: ${rate.toFixed(4)}`);
+                }
+
+                // แสดงข้อความยืนยันถ้ามีการแปลงราคา
+                if (convertedCount > 0) {
+                    console.log(`Successfully converted ${convertedCount} price(s) to ${currencyName}`);
+                }
+
+            } catch (err) {
+                console.error('Currency conversion error:', err);
+                // ถ้าดึงเรตไม่สำเร็จ: แจ้งเตือนและคืนค่าเดิม
+                alert(`Failed to convert currency: ${err.message}\nPlease try again or check your internet connection.`);
+                select.value = prevCurrency;
+                setFxMeta('');
+            } finally {
+                select.disabled = false;
+            }
+        }
+
+        // =========================
+        // Initialize on load
+        // =========================
+        document.addEventListener('DOMContentLoaded', function() {
             initApp();
-            
-            // Initialize currency labels
             updatePriceLabels();
-        
-        // Allow Enter key to calculate
+            setFxMeta('Ready to compare prices!');
+            
+            // Test ดูว่าการแปลงสกุลเงินทำงานได้หรือไม่
+            console.log('Price Comparison App loaded successfully');
+            console.log('Available currencies:', Object.keys(currencies));
+            console.log('Fixed exchange rates available:', Object.keys(FIXED_RATES));
+        });
+
+        // Enter key = calculate
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 calculateBestDeal();
+            }
+        });
+
+        // Handle input validation
+        document.addEventListener('input', function(e) {
+            if (e.target.type === 'number') {
+                const value = parseFloat(e.target.value);
+                if (isNaN(value) || value < 0) {
+                    e.target.style.borderColor = '#f56565';
+                } else {
+                    e.target.style.borderColor = '#e2e8f0';
+                }
             }
         });
     </script>
